@@ -6,7 +6,7 @@ class CubeMaker:
         self.cublet_radius = cublet_radius
         self.margin = margin
 
-    def generate_box_points(self, width, height, depth):
+    def generate_box_points(self, width, depth, height):
         """
         This function takes inputs and returns vertex and face arrays.
         no actual mesh data creation is done here.
@@ -38,13 +38,33 @@ class CubeMaker:
 
     def make_cublet(self, context, cublet):
 
+        from bpy_extras import object_utils
 
         verts_loc, faces = self.generate_box_points(1, 1, 1)
+        box_mesh = self.get_mesh(verts_loc, faces, repr(cublet))
 
-        box_mesh = self.get_mesh(verts_loc, faces, repr(cublet.stickers))
+        for sticker in cublet.stickers:
+            print(sticker['face'].value)
+            dimensions = [0, 0, 0]
+            location = [0, 0, 0]
+            cubl_xyz = [cublet.x, cublet.y, cublet.z]
+            for i, val in enumerate(sticker['face'].value):
+                location[i] = cubl_xyz[i]*(2*self.cublet_radius + self.margin)
+                if val != 0:
+                    dimensions[i] = 0.02
+                    location[i] += val*1.02
+                else:
+                    dimensions[i] = 0.9
+                print("{} {} {}".format(i, val, dimensions))
+
+            verts_loc, faces = self.generate_box_points(*dimensions)
+            sticker_mesh = self.get_mesh(verts_loc, faces, repr(sticker))
+            cube_obj = object_utils.object_data_add(context, sticker_mesh)
+            cube_obj.object.location = location
+                #coord*(2*self.cublet_radius + self.margin) for coord in (cublet.x, cublet.y, cublet.z)
+            #]
 
         # add the mesh as an object into the scene with this utility module
-        from bpy_extras import object_utils
         cube_obj = object_utils.object_data_add(context, box_mesh)
         cube_obj.object.location = [
             coord*(2*self.cublet_radius + self.margin) for coord in (cublet.x, cublet.y, cublet.z)
