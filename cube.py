@@ -1,6 +1,6 @@
 from math import sin, cos, radians
 
-from enums import Color, Face
+from .enums import Color, Face
 
 
 class Cublet:

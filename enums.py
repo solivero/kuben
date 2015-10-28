@@ -1,4 +1,5 @@
 from enum import Enum
+
 class Face(Enum):
     up = (0, 0, 1)
     down = (0, 0, -1)
