@@ -1,4 +1,6 @@
 import bmesh
+import random
+from .enums import Color
 
 class CubeMaker:
     def __init__(self, bpy, cublet_radius=1, margin=0.05):
@@ -42,9 +44,10 @@ class CubeMaker:
 
         verts_loc, faces = self.generate_box_points(1, 1, 1)
         box_mesh = self.get_mesh(verts_loc, faces, repr(cublet))
+        self.color_mesh(box_mesh, (0.05, 0.05, 0.05))
 
         for sticker in cublet.stickers:
-            print(sticker['face'].value)
+            #print(sticker['face'].value)
             dimensions = [0, 0, 0]
             location = [0, 0, 0]
             cubl_xyz = [cublet.x, cublet.y, cublet.z]
@@ -55,14 +58,16 @@ class CubeMaker:
                     location[i] += val*1.02
                 else:
                     dimensions[i] = 0.9
-                print("{} {} {}".format(i, val, dimensions))
+                #print("{} {} {}".format(i, val, dimensions))
 
             verts_loc, faces = self.generate_box_points(*dimensions)
             sticker_mesh = self.get_mesh(verts_loc, faces, repr(sticker))
+
+            self.color_mesh(sticker_mesh, sticker['color'])
+
+# set to vertex paint mode to see the result
             cube_obj = object_utils.object_data_add(context, sticker_mesh)
             cube_obj.object.location = location
-                #coord*(2*self.cublet_radius + self.margin) for coord in (cublet.x, cublet.y, cublet.z)
-            #]
 
         # add the mesh as an object into the scene with this utility module
         cube_obj = object_utils.object_data_add(context, box_mesh)
@@ -77,6 +82,33 @@ class CubeMaker:
         #bpy.ops.paint.vertex_color_set()
 
         return {'FINISHED'}
+
+    def color_mesh(self, mesh, color):
+        if type(color) != tuple:
+            table = {
+                Color.white:    (1, 1, 1),
+                Color.yellow:   (0.8, 0.8, 0),
+                Color.blue:     (0.2, 0.2, 1),
+                Color.green:    (0.3, 1, 0),
+                Color.red:      (0.9, 0, 0),
+                Color.orange:   (1, 0.7, 0),
+            }
+            color = table[color]
+        color_map_collection = mesh.vertex_colors
+        if len(color_map_collection) == 0:
+            color_map = color_map_collection.new()
+
+        for layer in mesh.vertex_colors:
+            layer.active = True
+            layer.active_render = True
+            for loop_color in layer.data:
+                loop_color.color = color
+
+        mat = self.bpy.data.materials.new('vertex_material')
+        mat.use_vertex_color_paint = True
+        mat.use_vertex_color_light = True  # material affected by lights
+
+        mesh.materials.append(mat)
 
     def make_cube(self, cube):
         for x_axis in cube.cublets:
