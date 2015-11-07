@@ -1,11 +1,12 @@
 from math import sin, cos, radians
+import copy
 
 from .enums import Color, Face
 
 
 class Cublet:
     def __repr__(self):
-        return "x:{} y:{} z:{} \ncolors:{}\n\n".format(
+        return "x:{} y:{} z:{} \ncolors:{}".format(
             self.x,
             self.y,
             self.z,
@@ -29,40 +30,37 @@ class Cube:
         # theta = radians(theta)
         # sin_t = sin(theta)
         # cos_t = cos(theta)
-        z = cublet.z
-        y = cublet.y
-        cublet.z = -y
-        cublet.y = z
-        print("X: {} -> {}".format((cublet.x, y, z,), (cublet.x, cublet.y, cublet.z)))
-        for sticker in cublet.stickers:
-            face = sticker['face'].value
+        new_cublet = copy.deepcopy(cublet)
+        new_cublet.z = -cublet.y
+        new_cublet.y = cublet.z
+        #print("X: {} -> {}".format((cublet.x, cublet.y, cublet.z,), (new_cublet.x, new_cublet.y, new_cublet.z)))
+        for i in range(len(cublet.stickers)):
+            face = cublet.stickers[i]['face'].value
             x, y, z = face
-            sticker['face'] = Face((x, z, -y))
-        return cublet
+            new_cublet.stickers[i]['face'] = Face((x, z, -y))
+        return new_cublet
 
     def rotate_cublet_y(self, cublet):
-        x = cublet.x
-        z = cublet.z
-        cublet.x = -z
-        cublet.z = x
-        print("Y: {} -> {}".format((x, cublet.y, z,), (cublet.x, cublet.y, cublet.z)))
-        for sticker in cublet.stickers:
-            face = sticker['face'].value
+        new_cublet = copy.deepcopy(cublet)
+        new_cublet.x = -cublet.z
+        new_cublet.z = cublet.x
+        #print("Y: {} -> {}".format((cublet.x, cublet.y, cublet.z,), (new_cublet.x, new_cublet.y, new_cublet.z)))
+        for i in range(len(cublet.stickers)):
+            face = cublet.stickers[i]['face'].value
             x, y, z = face
-            sticker['face'] = Face((-z, y, x))
-        return cublet
+            new_cublet.stickers[i]['face'] = Face((-z, y, x))
+        return new_cublet
 
     def rotate_cublet_z(self, cublet):
-        x = cublet.x
-        y = cublet.y
-        cublet.x = -y
-        cublet.y = x
-        print("Z: {} -> {}".format((x, y, cublet.z,), (cublet.x, cublet.y, cublet.z)))
-        for sticker in cublet.stickers:
-            face = sticker['face'].value
+        new_cublet = copy.deepcopy(cublet)
+        new_cublet.x = -cublet.y
+        new_cublet.y = cublet.x
+        #print("Z: {} -> {}".format((cublet.x, cublet.y, cublet.z,), (new_cublet.x, new_cublet.y, new_cublet.z)))
+        for i in range(len(cublet.stickers)):
+            face = cublet.stickers[i]['face'].value
             x, y, z = face
-            sticker['face'] = Face((-y, x, z))
-        return cublet
+            new_cublet.stickers[i]['face'] = Face((-y, x, z))
+        return new_cublet
 
     def rotate_face(self, face, clockwise):
         if clockwise:
@@ -72,37 +70,50 @@ class Cube:
             p = 1
             q = 3
 
+        new_face = []
         if face is Face.up:
             for i in range(p):
-                for column in self.cublets:
-                    for depth in column:
-                        self.rotate_cublet_z(depth[2])
-        elif face is Face.left:
-            for i in range(p):
-                for depth in self.cublets[0]:
-                    for cublet in depth:
-                        self.rotate_cublet_x(cublet)
+                for x in range(3):
+                    for y in range(3):
+                        new_face.append(self.rotate_cublet_z(self.cublets[x][y][2]))
+                for cublet in new_face:
+                    self.cublets[cublet.x+1][cublet.y+1][cublet.z+1] = cublet
         elif face is Face.down:
             for i in range(q):
-                for column in self.cublets:
-                    for depth in column:
-                        self.rotate_cublet_z(depth[0])
-
+                for x in range(3):
+                    for y in range(3):
+                        new_face.append(self.rotate_cublet_z(self.cublets[x][y][0]))
+                for cublet in new_face:
+                    self.cublets[cublet.x+1][cublet.y+1][cublet.z+1] = cublet
+        elif face is Face.left:
+            for i in range(p):
+                for y in range(3):
+                    for z in range(3):
+                        new_face.append(self.rotate_cublet_x(self.cublets[0][y][z]))
+                for cublet in new_face:
+                    self.cublets[cublet.x+1][cublet.y+1][cublet.z+1] = cublet
         elif face is Face.right:
             for i in range(q):
-                for depth in self.cublets[2]:
-                    for cublet in depth:
-                        self.rotate_cublet_x(cublet)
+                for y in range(3):
+                    for z in range(3):
+                        new_face.append(self.rotate_cublet_x(self.cublets[2][y][z]))
+                for cublet in new_face:
+                    self.cublets[cublet.x+1][cublet.y+1][cublet.z+1] = cublet
+
         elif face is Face.back:
             for i in range(q):
-                for column in self.cublets:
-                    for cublet in column[2]:
-                        self.rotate_cublet_y(cublet)
+                for x in range(3):
+                    for z in range(3):
+                        new_face.append(self.rotate_cublet_y(self.cublets[x][2][z]))
+                for cublet in new_face:
+                    self.cublets[cublet.x+1][cublet.y+1][cublet.z+1] = cublet
         elif face is Face.front:
             for i in range(p):
-                for column in self.cublets:
-                    for cublet in column[0]:
-                        self.rotate_cublet_y(cublet)
+                for x in range(3):
+                    for z in range(3):
+                        new_face.append(self.rotate_cublet_y(self.cublets[x][0][z]))
+                for cublet in new_face:
+                    self.cublets[cublet.x+1][cublet.y+1][cublet.z+1] = cublet
 
     def rotate_cube(self, clockwise):
         if clockwise:

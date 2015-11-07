@@ -14,7 +14,7 @@ class BlenderAdapter:
         self.bpy.context.space_data.viewport_shade = "TEXTURED"
         return "Cube Made"
 
-    def rotate_cube(self, face):
-        self.cube_struct.rotate_face(face, clockwise=False)
+    def rotate_cube(self, face, clockwise):
+        self.cube_struct.rotate_face(face, clockwise=clockwise)
         self.cube_maker.make_cube(self.cube_struct)
 

@@ -63,16 +63,28 @@ class AddMeshPanel(bpy.types.Panel):
         layout = self.layout
 
         box = layout.box()
-        box.label("Rotation")
+        box.label("Clockwise Rotation")
         row1 = box.row()
-        row1.operator("cube_rotate.right")
-        row1.operator("cube_rotate.left")
+        row1.operator("cube_rotate.right_cw")
+        row1.operator("cube_rotate.left_cw")
         row2 = box.row()
-        row2.operator("cube_rotate.up")
-        row2.operator("cube_rotate.down")
+        row2.operator("cube_rotate.up_cw")
+        row2.operator("cube_rotate.down_cw")
         row3 = box.row()
-        row3.operator("cube_rotate.front")
-        row3.operator("cube_rotate.back")
+        row3.operator("cube_rotate.front_cw")
+        row3.operator("cube_rotate.back_cw")
+
+        box = layout.box()
+        box.label("Counterclockwise Rotation")
+        row1 = box.row()
+        row1.operator("cube_rotate.right_ccw")
+        row1.operator("cube_rotate.left_ccw")
+        row2 = box.row()
+        row2.operator("cube_rotate.up_ccw")
+        row2.operator("cube_rotate.down_ccw")
+        row3 = box.row()
+        row3.operator("cube_rotate.front_ccw")
+        row3.operator("cube_rotate.back_ccw")
 
 
 class OBJECT_OT_AddButton(bpy.types.Operator):
@@ -86,59 +98,114 @@ class OBJECT_OT_AddButton(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class CUBE_ROTATE_OT_right(bpy.types.Operator):
+class CUBE_ROTATE_OT_right_ccw(bpy.types.Operator):
 
-    bl_idname = "cube_rotate.right"
+    bl_idname = "cube_rotate.right_ccw"
     bl_label = "Right"
     mesh = bpy.props.StringProperty()
 
     def execute(self, context):
-        adapter.rotate_cube(enums.Face.right)
+        adapter.rotate_cube(enums.Face.right, clockwise=False)
         return {'FINISHED'}
-class CUBE_ROTATE_OT_left(bpy.types.Operator):
+class CUBE_ROTATE_OT_left_ccw(bpy.types.Operator):
 
-    bl_idname = "cube_rotate.left"
+    bl_idname = "cube_rotate.left_ccw"
     bl_label = "Left"
     mesh = bpy.props.StringProperty()
 
     def execute(self, context):
-        adapter.rotate_cube(enums.Face.left)
+        adapter.rotate_cube(enums.Face.left, clockwise=False)
         return {'FINISHED'}
-class CUBE_ROTATE_OT_up(bpy.types.Operator):
+class CUBE_ROTATE_OT_up_ccw(bpy.types.Operator):
 
-    bl_idname = "cube_rotate.up"
+    bl_idname = "cube_rotate.up_ccw"
     bl_label = "Up"
     mesh = bpy.props.StringProperty()
 
     def execute(self, context):
-        adapter.rotate_cube(enums.Face.up)
+        adapter.rotate_cube(enums.Face.up, clockwise=False)
         return {'FINISHED'}
-class CUBE_ROTATE_OT_down(bpy.types.Operator):
+class CUBE_ROTATE_OT_down_ccw(bpy.types.Operator):
 
-    bl_idname = "cube_rotate.down"
+    bl_idname = "cube_rotate.down_ccw"
     bl_label = "Down"
     mesh = bpy.props.StringProperty()
 
     def execute(self, context):
-        adapter.rotate_cube(enums.Face.down)
+        adapter.rotate_cube(enums.Face.down, clockwise=False)
         return {'FINISHED'}
-class CUBE_ROTATE_OT_back(bpy.types.Operator):
+class CUBE_ROTATE_OT_back_ccw(bpy.types.Operator):
 
-    bl_idname = "cube_rotate.back"
+    bl_idname = "cube_rotate.back_ccw"
     bl_label = "Back"
     mesh = bpy.props.StringProperty()
 
     def execute(self, context):
-        adapter.rotate_cube(enums.Face.back)
+        adapter.rotate_cube(enums.Face.back, clockwise=False)
         return {'FINISHED'}
-class CUBE_ROTATE_OT_front(bpy.types.Operator):
+class CUBE_ROTATE_OT_front_ccw(bpy.types.Operator):
 
-    bl_idname = "cube_rotate.front"
+    bl_idname = "cube_rotate.front_ccw"
     bl_label = "Front"
     mesh = bpy.props.StringProperty()
 
     def execute(self, context):
-        adapter.rotate_cube(enums.Face.front)
+        adapter.rotate_cube(enums.Face.front, clockwise=False)
+        return {'FINISHED'}
+## CLOCKWISE STARTS HERE
+class CUBE_ROTATE_OT_right_cw(bpy.types.Operator):
+
+    bl_idname = "cube_rotate.right_cw"
+    bl_label = "Right"
+    mesh = bpy.props.StringProperty()
+
+    def execute(self, context):
+        adapter.rotate_cube(enums.Face.right, clockwise=True)
+        return {'FINISHED'}
+class CUBE_ROTATE_OT_left_cw(bpy.types.Operator):
+
+    bl_idname = "cube_rotate.left_cw"
+    bl_label = "Left"
+    mesh = bpy.props.StringProperty()
+
+    def execute(self, context):
+        adapter.rotate_cube(enums.Face.left, clockwise=True)
+        return {'FINISHED'}
+class CUBE_ROTATE_OT_up_cw(bpy.types.Operator):
+
+    bl_idname = "cube_rotate.up_cw"
+    bl_label = "Up"
+    mesh = bpy.props.StringProperty()
+
+    def execute(self, context):
+        adapter.rotate_cube(enums.Face.up, clockwise=True)
+        return {'FINISHED'}
+class CUBE_ROTATE_OT_down_cw(bpy.types.Operator):
+
+    bl_idname = "cube_rotate.down_cw"
+    bl_label = "Down"
+    mesh = bpy.props.StringProperty()
+
+    def execute(self, context):
+        adapter.rotate_cube(enums.Face.down, clockwise=True)
+        return {'FINISHED'}
+class CUBE_ROTATE_OT_back_cw(bpy.types.Operator):
+
+    bl_idname = "cube_rotate.back_cw"
+    bl_label = "Back"
+    mesh = bpy.props.StringProperty()
+
+    def execute(self, context):
+        adapter.rotate_cube(enums.Face.back, clockwise=True)
+        return {'FINISHED'}
+class CUBE_ROTATE_OT_front_cw(bpy.types.Operator):
+
+    bl_idname = "cube_rotate.front_cw"
+    bl_label = "Front"
+    mesh = bpy.props.StringProperty()
+
+    def execute(self, context):
+        adapter.rotate_cube(enums.Face.front, clockwise=True)
         return {'FINISHED'}
 
 #
