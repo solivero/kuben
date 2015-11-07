@@ -7,6 +7,7 @@ class CubeMaker:
         self.bpy = bpy
         self.cublet_radius = cublet_radius
         self.margin = margin
+        self.cube = [[[[] for i in range(3)] for i in range(3)] for k in range(3)]
 
     def generate_box_points(self, width, depth, height):
         """
@@ -46,13 +47,19 @@ class CubeMaker:
         box_mesh = self.get_mesh(verts_loc, faces, repr(cublet))
         self.color_mesh(box_mesh, (0.05, 0.05, 0.05))
 
+        # add the mesh as an object into the scene with this utility module
+        cube_obj = object_utils.object_data_add(context, box_mesh)
+        cube_obj.object.location = [
+            coord*(2*self.cublet_radius + self.margin) for coord in (cublet.x, cublet.y, cublet.z)
+        ]
+
         for sticker in cublet.stickers:
-            #print(sticker['face'].value)
             dimensions = [0, 0, 0]
             location = [0, 0, 0]
-            cubl_xyz = [cublet.x, cublet.y, cublet.z]
+            #cubl_xyz = [cublet.x, cublet.y, cublet.z]
             for i, val in enumerate(sticker['face'].value):
-                location[i] = cubl_xyz[i]*(2*self.cublet_radius + self.margin)
+                # Use for absolute position, comment for relative position to cublet
+                #location[i] = cubl_xyz[i]*(2*self.cublet_radius + self.margin)
                 if val != 0:
                     dimensions[i] = 0.02
                     location[i] += val*1.02
@@ -65,22 +72,11 @@ class CubeMaker:
 
             self.color_mesh(sticker_mesh, sticker['color'])
 
-# set to vertex paint mode to see the result
-            cube_obj = object_utils.object_data_add(context, sticker_mesh)
-            cube_obj.object.location = location
+            sticker_obj = object_utils.object_data_add(context, sticker_mesh)
+            sticker_obj.object.location = location
+            sticker_obj.object.parent = cube_obj.object
 
-        # add the mesh as an object into the scene with this utility module
-        cube_obj = object_utils.object_data_add(context, box_mesh)
-        cube_obj.object.location = [
-            coord*(2*self.cublet_radius + self.margin) for coord in (cublet.x, cublet.y, cublet.z)
-        ]
-        box_mesh.use_paint_mask = True
-
-        #bpy.data.brushes["Draw"].color = (random.random(), random.random(), random.random())
-        #bpy.ops.object.mode_set(mode="VERTEX_PAINT")
-        #bpy.ops.paint.face_select_all(action='SELECT')
-        #bpy.ops.paint.vertex_color_set()
-
+        self.cube[cublet.x+1][cublet.y+1][cublet.z+1] = cube_obj
         return {'FINISHED'}
 
     def color_mesh(self, mesh, color):
@@ -111,6 +107,16 @@ class CubeMaker:
         mesh.materials.append(mat)
 
     def make_cube(self, cube):
+        #for x in self.cube:
+        #    for y in x:
+        #        for obj in y:
+        #            if type(obj) != list:
+        #                for child in obj.object.children:
+        #                    self.bpy.data.objects.remove(child)
+        #                self.bpy.data.objects.remove(obj)
+
+        self.bpy.ops.object.select_all(action='SELECT')
+        self.bpy.ops.object.delete()
         for x_axis in cube.cublets:
             for y_axis in x_axis:
                 for cublet in y_axis:

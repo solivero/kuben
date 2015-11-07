@@ -33,6 +33,7 @@ class Cube:
         y = cublet.y
         cublet.z = -y
         cublet.y = z
+        print("X: {} -> {}".format((cublet.x, y, z,), (cublet.x, cublet.y, cublet.z)))
         for sticker in cublet.stickers:
             face = sticker['face'].value
             x, y, z = face
@@ -44,10 +45,11 @@ class Cube:
         z = cublet.z
         cublet.x = -z
         cublet.z = x
+        print("Y: {} -> {}".format((x, cublet.y, z,), (cublet.x, cublet.y, cublet.z)))
         for sticker in cublet.stickers:
             face = sticker['face'].value
             x, y, z = face
-            sticker['face'] = Face((x, z, -y))
+            sticker['face'] = Face((-z, y, x))
         return cublet
 
     def rotate_cublet_z(self, cublet):
@@ -55,10 +57,11 @@ class Cube:
         y = cublet.y
         cublet.x = -y
         cublet.y = x
+        print("Z: {} -> {}".format((x, y, cublet.z,), (cublet.x, cublet.y, cublet.z)))
         for sticker in cublet.stickers:
             face = sticker['face'].value
             x, y, z = face
-            sticker['face'] = Face((x, z, -y))
+            sticker['face'] = Face((-y, x, z))
         return cublet
 
     def rotate_face(self, face, clockwise):
@@ -73,33 +76,33 @@ class Cube:
             for i in range(p):
                 for column in self.cublets:
                     for depth in column:
-                        depth[2] = self.rotate_cublet_z(depth[2])
+                        self.rotate_cublet_z(depth[2])
         elif face is Face.left:
             for i in range(p):
                 for depth in self.cublets[0]:
                     for cublet in depth:
-                        cublet = self.rotate_cublet_x(cublet)
-        elif face is Face.front:
-            for i in range(p):
-                for column in self.cublets:
-                    for cublet in column[0]:
-                        cublet = self.rotate_cublet_y(cublet)
+                        self.rotate_cublet_x(cublet)
         elif face is Face.down:
             for i in range(q):
                 for column in self.cublets:
                     for depth in column:
-                        depth[0] = self.rotate_cublet_z(depth[0])
+                        self.rotate_cublet_z(depth[0])
 
         elif face is Face.right:
             for i in range(q):
                 for depth in self.cublets[2]:
                     for cublet in depth:
-                        cublet = self.rotate_cublet_x(cublet)
+                        self.rotate_cublet_x(cublet)
         elif face is Face.back:
             for i in range(q):
                 for column in self.cublets:
+                    for cublet in column[2]:
+                        self.rotate_cublet_y(cublet)
+        elif face is Face.front:
+            for i in range(p):
+                for column in self.cublets:
                     for cublet in column[0]:
-                        cublet = self.rotate_cublet_y(cublet)
+                        self.rotate_cublet_y(cublet)
 
     def rotate_cube(self, clockwise):
         if clockwise:
